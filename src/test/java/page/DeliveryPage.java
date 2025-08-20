@@ -1,14 +1,15 @@
+
 package page;
 
 import com.codeborne.selenide.SelenideElement;
 import dto.UserInfo;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
-import org.openqa.selenium.Keys;
 
 public class DeliveryPage {
     private final SelenideElement cityField = $("[data-test-id=city] input");
@@ -18,8 +19,7 @@ public class DeliveryPage {
     private final SelenideElement agreementCheckbox = $("[data-test-id=agreement]");
     private final SelenideElement submitButton = $(byText("Запланировать"));
     private final SelenideElement replanButton = $(byText("Перепланировать"));
-    private final SelenideElement successNotification = $(".notification_status_ok");
-    private final SelenideElement replanNotification = $("[data-test-id=replan-notification]");
+    private final SelenideElement notification = $(".notification");
 
     public void fillForm(UserInfo user, String date) {
         cityField.setValue(user.getCity());
@@ -35,21 +35,16 @@ public class DeliveryPage {
     }
 
     public void verifySuccessfulBooking(String date) {
-        successNotification.should(appear, Duration.ofSeconds(15));
-        successNotification.should(text("Встреча успешно запланирована на " + date));
+        notification.should(appear, Duration.ofSeconds(15));
+        notification.shouldHave(text("Встреча успешно запланирована на " + date));
     }
 
     public void verifyReplanNotification() {
-        replanNotification.should(appear, Duration.ofSeconds(15));
-        replanNotification.should(text("У вас уже запланирована встреча на другую дату. Перепланировать?"));
+        notification.should(appear, Duration.ofSeconds(15));
+        notification.shouldHave(text("У вас уже запланирована встреча на другую дату. Перепланировать?"));
     }
 
     public void clickReplan() {
         replanButton.click();
-    }
-
-    public void verifySuccessfulReplan(String date) {
-        successNotification.should(appear, Duration.ofSeconds(15));
-        successNotification.should(text("Встреча успешно запланирована на " + date));
     }
 }

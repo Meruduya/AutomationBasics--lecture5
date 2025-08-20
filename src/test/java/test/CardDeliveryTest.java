@@ -1,3 +1,4 @@
+
 package test;
 
 import com.codeborne.selenide.Configuration;
@@ -16,8 +17,8 @@ class CardDeliveryTest {
     @BeforeEach
     void setUp() {
         Configuration.holdBrowserOpen = true;
-        deliveryPage = new DeliveryPage();
         open("http://localhost:9999");
+        deliveryPage = new DeliveryPage();
     }
 
     @Test
@@ -51,6 +52,6 @@ class CardDeliveryTest {
 
         // Подтверждение перепланирования
         deliveryPage.clickReplan();
-        deliveryPage.verifySuccessfulReplan(secondDate);
+        deliveryPage.verifySuccessfulBooking(secondDate);
     }
 }

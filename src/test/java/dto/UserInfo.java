@@ -1,12 +1,10 @@
 package dto;
 
-import lombok.Data;
-import lombok.AllArgsConstructor;
+import lombok.Value;
 
-@Data
-@AllArgsConstructor
+@Value
 public class UserInfo {
-    private final String city;
-    private final String name;
-    private final String phone;
+    String city;
+    String name;
+    String phone;
 }
