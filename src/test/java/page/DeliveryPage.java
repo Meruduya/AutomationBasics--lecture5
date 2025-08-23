@@ -1,4 +1,3 @@
-
 package page;
 
 import com.codeborne.selenide.SelenideElement;
@@ -16,35 +15,75 @@ public class DeliveryPage {
     private final SelenideElement dateField = $("[data-test-id=date] input");
     private final SelenideElement nameField = $("[data-test-id=name] input");
     private final SelenideElement phoneField = $("[data-test-id=phone] input");
-    private final SelenideElement agreementCheckbox = $("[data-test-id=agreement]");
-    private final SelenideElement submitButton = $(byText("Запланировать"));
-    private final SelenideElement replanButton = $(byText("Перепланировать"));
-    private final SelenideElement notification = $(".notification");
+    private final SelenideElement agreementBox = $("[data-test-id=agreement] .checkbox__box");
+    private final SelenideElement agreementInput = $("[data-test-id=agreement] input[type='checkbox']");
+    private final SelenideElement submitButton = $$("button").findBy(exactText("Запланировать"));
 
-    public void fillForm(UserInfo user, String date) {
-        cityField.setValue(user.getCity());
-        dateField.sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
+    private final SelenideElement successNotification = $("[data-test-id=success-notification]");
+    private final SelenideElement successClose = $("[data-test-id=success-notification] .icon-button");
+    private final SelenideElement replanNotification = $("[data-test-id=replan-notification]");
+
+    private void replaceValue(SelenideElement el, String value) {
+        el.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE);
+        el.setValue(value);
+    }
+
+    private void replaceDate(String date) {
+        dateField.sendKeys(
+                Keys.chord(Keys.CONTROL, "a"),
+                Keys.BACK_SPACE
+        );
         dateField.setValue(date);
-        nameField.setValue(user.getName());
-        phoneField.setValue(user.getPhone());
-        agreementCheckbox.click();
+    }
+
+    private void ensureAgreementChecked() {
+        agreementInput.scrollIntoView(true);
+        if (!agreementInput.isSelected()) {
+            agreementBox.click();
+        }
+        agreementInput.shouldBe(selected);
+    }
+
+    /** Первичное заполнение всех полей */
+    public void fillForm(UserInfo user, String date) {
+        replaceValue(cityField, user.getCity());
+        // На некоторых версиях стенда хватает простого setValue; pressEnter() не обязателен.
+        replaceDate(date);
+        replaceValue(nameField, user.getName());
+        replaceValue(phoneField, user.getPhone());
+        ensureAgreementChecked();
+    }
+
+    /** Для перепланирования меняем ТОЛЬКО дату + убеждаемся в галочке */
+    public void changeDateOnly(String date) {
+        replaceDate(date);
+        ensureAgreementChecked();
     }
 
     public void submitForm() {
-        submitButton.click();
+        submitButton.scrollIntoView(true).click();
     }
 
     public void verifySuccessfulBooking(String date) {
-        notification.should(appear, Duration.ofSeconds(15));
-        notification.shouldHave(text("Встреча успешно запланирована на " + date));
+        successNotification.should(appear, Duration.ofSeconds(15));
+        successNotification.$(".notification__content")
+                .shouldHave(text("Встреча успешно запланирована на " + date), Duration.ofSeconds(15));
+    }
+
+    public void closeSuccessNotification() {
+        successNotification.should(appear, Duration.ofSeconds(15));
+        successClose.click();
+        successNotification.should(disappear, Duration.ofSeconds(15));
     }
 
     public void verifyReplanNotification() {
-        notification.should(appear, Duration.ofSeconds(15));
-        notification.shouldHave(text("У вас уже запланирована встреча на другую дату. Перепланировать?"));
+        replanNotification.should(appear, Duration.ofSeconds(15)).shouldBe(visible);
+        replanNotification.$(".notification__content")
+                .shouldHave(text("У вас уже запланирована встреча на другую дату"), Duration.ofSeconds(15))
+                .shouldHave(text("Перепланировать?"), Duration.ofSeconds(15));
     }
 
     public void clickReplan() {
-        replanButton.click();
+        replanNotification.$(byText("Перепланировать")).click();
     }
 }
