@@ -20,7 +20,6 @@ class CardDeliveryTest {
     static void beforeAll() {
         Configuration.baseUrl = "http://localhost:9999";
         Configuration.holdBrowserOpen = true;
-        Configuration.timeout = 15000;
         Configuration.browserSize = "1280x900";
     }
 
