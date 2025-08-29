@@ -1,8 +1,11 @@
 package test;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.logevents.SelenideLogger;
 import data.DataGenerator;
 import dto.UserInfo;
+import io.qameta.allure.selenide.AllureSelenide;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +21,18 @@ class CardDeliveryTest {
 
     @BeforeAll
     static void beforeAll() {
+        // Подключаем Allure listener
+        SelenideLogger.addListener("allure", new AllureSelenide());
+
         Configuration.baseUrl = "http://localhost:9999";
         Configuration.holdBrowserOpen = true;
         Configuration.browserSize = "1280x900";
+    }
+
+    @AfterAll
+    static void afterAll() {
+        // Отключаем Allure listener
+        SelenideLogger.removeListener("allure");
     }
 
     @BeforeEach
